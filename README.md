@@ -2,8 +2,8 @@ Adds a `beet bad` command to check for missing, and optionally corrupt files.
 
 # Installation
 
-I haven't uploaded this plugin to PyPI, you can install this by running `pip`
-on the repository itself:
+I haven't uploaded this plugin to PyPI, but you can install this by running
+`pip` on the repository itself:
 
     sudo pip install .
 
@@ -24,7 +24,7 @@ flac decoder's `--test` mode and all other files for existence only.
 
 # Running
 
-To run Badfiles, just use the `beet bad` command with Beets' usualy query syntax.
+To run Badfiles, just use the `beet bad` command with Beets' usual query syntax.
 
 For instance, this will run a check on all songs containing the word "wolf":
 
