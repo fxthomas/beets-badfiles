@@ -33,3 +33,12 @@ For instance, this will run a check on all songs containing the word "wolf":
 This one will run checks on a specific album:
 
     beet bad album_id:1234
+
+Here is an example from my library where the FLAC decoder was signaling a
+corrupt file:
+
+    beet bad title::^$
+    /tank/Music/__/00.flac: command exited with status 1
+      00.flac: *** Got error code 2:FLAC__STREAM_DECODER_ERROR_STATUS_FRAME_CRC_MISMATCH
+      00.flac: ERROR while decoding data
+                 state = FLAC__STREAM_DECODER_READ_FRAME
