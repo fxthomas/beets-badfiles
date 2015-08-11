@@ -2,7 +2,10 @@ Adds a `beet bad` command to check for missing, and optionally corrupt files.
 
 # Installation
 
-TODO
+I haven't uploaded this plugin to PyPI, you can install this by running `pip`
+on the repository itself:
+
+    sudo pip install .
 
 # Configuration
 
