@@ -18,7 +18,7 @@ setup(
     description="Badfiles - a beets plugin for finding corrupt and missing files",
     author="François-Xavier Thomas",
     author_email="",
-    url="http://github.com/fxthomas/badfiles",
+    url="http://github.com/fxthomas/beets-badfiles",
     packages=["beetsplug"],
 )
 
