@@ -58,6 +58,6 @@ class BadFiles(BeetsPlugin):
                 ui.print_(u"%s: ok" % dpath)
 
     def commands(self):
-        bad_command = Subcommand('bad', help='check for bad files')
+        bad_command = Subcommand('bad', help='check for corrupt or missing files')
         bad_command.func = self.check_bad
         return [bad_command]
