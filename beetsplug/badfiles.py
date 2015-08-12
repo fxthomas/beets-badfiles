@@ -21,8 +21,41 @@ import os
 
 class BadFiles(BeetsPlugin):
 
+    def run_command(self, cmd):
+        self._log.debug(u"running command: %s" % displayable_path(list2cmdline(cmd)))
+        try:
+            return 0, check_output(cmd, stderr=STDOUT).split("\n")
+        except CalledProcessError as e:
+            return 1, e.output.split("\n")
+
+    def check_mp3val(self, path):
+        errors, output = self.run_command(["mp3val", path])
+        if errors == 0:
+            output = [line for line in output if line.startswith("WARNING:")]
+            errors = sum(1 for line in output if line.startswith("WARNING:"))
+        return errors, output
+
+    def check_flac(self, path):
+        return self.run_command(["flac", "-wst", path])
+
+    def check_custom(self, command):
+        def checker(path):
+            cmd = shlex.split(command)
+            cmd.append(path)
+            return self.run_command(command)
+        return checker
+
+    def get_checker(self, ext):
+        ext = ext.lower()
+        command = self.config['commands'].get().get(ext)
+        if command:
+            return self.check_custom(command)
+        elif ext == "mp3":
+            return self.check_mp3val
+        elif ext == "flac":
+            return self.check_flac
+
     def check_bad(self, lib, opts, args):
-        command_by_ext = self.config['commands'].get()
         for item in lib.items(args):
 
             # First check if the path exists. If not, should run 'beets update'
@@ -32,30 +65,18 @@ class BadFiles(BeetsPlugin):
             if not os.path.exists(item.path):
                 ui.print_(u"%s: file does not exist" % dpath)
 
-            # Find a command in the 'commands' dictionary in the plugin
-            # configuration. If that command is not defined, go to the next
-            # file.
+            # Run the checker against the file if one is found
             ext = os.path.splitext(item.path)[1][1:]
-            cmd = command_by_ext.get(ext)
-            self._log.debug(u"command for extension %s: %s" % (ext, cmd))
-            if not cmd:
+            checker = self.get_checker(ext)
+            if not checker:
                 continue
-
-            # Add the path to the music file at the end of the check command,
-            # run it, then display the results.
-            cmd = shlex.split(cmd)
-            cmd.append(item.path)
-            self._log.debug(u"final command: %s" % displayable_path(list2cmdline(cmd)))
-            try:
-                check_output(cmd, stderr=STDOUT)
-            except CalledProcessError as e:
-                ui.print_(u"%s: command exited with status %s" % (dpath, e.returncode))
-                for line in e.output.split("\n"):
-                    if not line:
-                        continue
-                    ui.print_(u"  %s" % line)
-            else:
+            errors, output = checker(item.path)
+            if errors == 0:
                 ui.print_(u"%s: ok" % dpath)
+            else:
+                ui.print_(u"%s: checker found %d errors or warnings" % (dpath, errors))
+                for line in output:
+                    ui.print_(u"  %s" % displayable_path(line))
 
     def commands(self):
         bad_command = Subcommand('bad', help='check for corrupt or missing files')
