@@ -9,18 +9,26 @@ I haven't uploaded this plugin to PyPI, but you can install this by running
 
 # Configuration
 
-Here is a very basic configuration, requiring the
-[mp3check](http://sourceforge.net/projects/mp3check/) and
-[flac](https://xiph.org/flac/) packages to be installed.
+Here is a very basic configuration that uses the default commands for MP3 and
+FLAC files, requiring the [mp3val](http://mp3val.sourceforge.net/) and
+[flac](https://xiph.org/flac/) packages to be installed:
+
+    badfiles:
+      commands: {}
+    plugins: ... badfiles
+
+Note that the *mp3val* checker is a bit verbose and can output a lot of "stream
+error" messages, even for files that play perfectly well. Generally if more
+than one stream error happens, or if a stream error happens in the middle of a
+file, this is a bad sign.
+
+You can also add custom commands for a specific extension, e.g.:
 
     badfiles:
       commands:
-        mp3: mp3check -e
+        ogg: myoggchecker --opt1 --opt2
         flac: flac --test --warnings-as-errors --silent
     plugins: ... badfiles
-
-With this configuration, MP3 files will be checked with mp3check, FLAC with the
-flac decoder's `--test` mode and all other files for existence only.
 
 # Running
 

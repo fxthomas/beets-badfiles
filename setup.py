@@ -14,7 +14,7 @@
 from distutils.core import setup
 
 setup(
-    name="Badfiles",
+    name="beetsplug.badfiles",
     description="Badfiles - a beets plugin for finding corrupt and missing files",
     author="François-Xavier Thomas",
     author_email="",
