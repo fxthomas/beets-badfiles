@@ -18,15 +18,24 @@ from beets import ui
 from subprocess import check_output, CalledProcessError, list2cmdline, STDOUT
 import shlex
 import os
+import errno
+import sys
 
 class BadFiles(BeetsPlugin):
 
     def run_command(self, cmd):
         self._log.debug(u"running command: %s" % displayable_path(list2cmdline(cmd)))
         try:
-            return 0, check_output(cmd, stderr=STDOUT).split("\n")
+            output = check_output(cmd, stderr=STDOUT)
+            return 0, [line for line in output.split("\n") if line]
         except CalledProcessError as e:
-            return 1, e.output.split("\n")
+            return 1, [line for line in e.output.split("\n") if line]
+        except OSError as e:
+            if e.errno == errno.ENOENT:
+                ui.print_("Command '%s' does not exit. Is it installed?" % cmd[0])
+                sys.exit(1)
+            else:
+                raise
 
     def check_mp3val(self, path):
         errors, output = self.run_command(["mp3val", path])
@@ -42,7 +51,7 @@ class BadFiles(BeetsPlugin):
         def checker(path):
             cmd = shlex.split(command)
             cmd.append(path)
-            return self.run_command(command)
+            return self.run_command(cmd)
         return checker
 
     def get_checker(self, ext):
